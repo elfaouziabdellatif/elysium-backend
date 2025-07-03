@@ -27,6 +27,7 @@ router.get('/coach/seances', auth, seanceController.getCoachSeances);
 // Member seance routes
 router.get('/member/seances/available', auth, seanceController.getAvailableSeances);
 router.post('/member/seances/:seanceId/reserve/:userId', auth, seanceController.reserveSeance);
+router.get('/member/seances/:memberId',  seanceController.getMemberReservedSeances);
 
 
 module.exports = router;

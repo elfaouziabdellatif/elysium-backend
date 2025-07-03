@@ -203,11 +203,52 @@ const reserveSeance = async (req, res) => {
   }
 };
 
+// GET /member/seances/:memberId - Get seances reserved by a specific member
+const getMemberReservedSeances = async (req, res) => {
+  try {
+    const { memberId } = req.params;
+    console.log(`Fetching reserved seances for member ID: ${memberId}`);
+    // Find all seances where the member is in registeredMembers array
+    const seances = await Seance.find({ 
+      registeredMembers: { $in: [memberId] }
+    })
+      .populate('coach', 'name email')
+      .populate('registeredMembers', 'name email')
+      .sort({ date: 1, time: 1 });
+
+      console.log(`Found ${seances.length} seances for member ${memberId}`);
+    // Format the response with additional information
+    const reservedSeances = seances.map(seance => {
+      const registeredCount = seance.registeredMembers.length;
+      const availableSpots = seance.maxMembers - registeredCount;
+      
+      return {
+        ...seance.toObject(),
+        registeredCount,
+        availableSpots,
+        reservationStatus: seance.status === 'active' ? 'confirmed' : seance.status
+      };
+    });
+
+    res.json({
+      message: 'Member reserved seances retrieved successfully',
+      seances: reservedSeances,
+      totalReservations: reservedSeances.length
+    });
+  } catch (err) {
+    res.status(500).json({ 
+      message: 'Server error', 
+      error: err.message 
+    });
+  }
+};
+
 module.exports = {
   createSeance,
   getAllSeances,
   getSeanceById,
   getCoachSeances,
   getAvailableSeances,
-  reserveSeance
+  reserveSeance,
+  getMemberReservedSeances
 };
