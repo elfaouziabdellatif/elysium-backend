@@ -7,7 +7,6 @@ const generateRandomPassword = require('./../utils/genratePassword')
 
 // Admin registers users
 exports.registerUser = async (req, res) => {
-    console.log(req.body);
     const {
       fullName, email, phone, dob, gender, role,
       specialty, experience, certifications,
@@ -15,13 +14,7 @@ exports.registerUser = async (req, res) => {
       subscription, subscriptionStart
     } = req.body;
   
-    console.log ({
-        fullName, email, phone, dob, gender, 
-      specialty, experience, certifications,
-      emergencyContact, emergencyPhone, medicalInfo, 
-      subscription, subscriptionStart
-
-    })
+    
     try {
       // Check if email already exists
       const exists = await User.findOne({ email });
@@ -43,7 +36,6 @@ exports.registerUser = async (req, res) => {
       });
   
       await newUser.save();
-      console.log('User created:', newUser , 'password is ', hashed);
       // Create role-specific profile
       let profileModel;
       switch (role) {
@@ -74,7 +66,20 @@ exports.registerUser = async (req, res) => {
       await newUser.save();
   
       // Respond with the created user
-      res.status(201).json({ message: 'User created successfully', user: newUser });
+      res.status(201).json({
+        message: 'User created successfully',
+        user: {
+          id: newUser._id,
+          name: newUser.name,
+          email: newUser.email,
+          phone: newUser.phone,
+          dob: newUser.dob,
+          gender: newUser.gender,
+          role: newUser.role,
+          profile: newUser.profile
+        },
+        password: hashed // This is the generated password, not the hashed one
+      });
     } catch (err) {
       res.status(500).json({ message: 'Server error', error: err.message });
     }

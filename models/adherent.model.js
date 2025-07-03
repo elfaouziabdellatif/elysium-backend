@@ -9,4 +9,4 @@ const MemberSchema = new mongoose.Schema({
   subscriptionStart: { type: Date },
 });
 
-module.exports = mongoose.model('Member', AdherentSchema);
+module.exports = mongoose.model('Member', MemberSchema);
